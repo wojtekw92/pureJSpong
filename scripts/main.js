@@ -54,6 +54,10 @@ var canvasScreen = (function() {
     if(typeof left === 'string' && left==="center") left=(canvasElement.width/2) - (textWidth / 2);
     canvasContex.fillText(text,left,top);
   };
+  var drawBox = function(x, y, width, height){
+    canvasContex.fillStyle = "#FFFFFF";
+    canvasContex.fillRect(x,y,width,height);
+  }
 
   return {
     init: init,
@@ -61,11 +65,32 @@ var canvasScreen = (function() {
     cleanScreen: cleanScreen,
     putText: putText,
     addKeyHook: addKeyHook,
-    addResizeHook: addResizeHook
+    addResizeHook: addResizeHook,
+    drawBox: drawBox
+  }
+})();
+var game=(function(){
+  var players=[{width: 20,height: 200, x:100,y:100,points:0},{width: 20,height: 200, x:1800,y:100,points:0}];
+  var playerOneMoveUp = function(){}
+  var playerOneMoveDown = function(){}
+  var playerTwoMoveUp = function(){}
+  var playerTwoMoveDown = function(){}
+  var drawScreen = function(){
+    canvasScreen.cleanScreen();
+    canvasScreen.drawBox(players[0].x,players[0].y,players[0].width,players[0].height);
+    canvasScreen.drawBox(players[1].x,players[1].y,players[1].width,players[1].height);
+  }
+
+  return {
+    playerOneMoveUp: playerOneMoveUp,
+    playerOneMoveDown: playerOneMoveDown,
+    playerTwoMoveUp: playerTwoMoveUp,
+    playerTwoMoveDown: playerTwoMoveDown,
+    drawScreen: drawScreen
   }
 })();
 var onePlayer=null;
-var options=null
+var options=null;
 var twoPlayers=function(){
   canvasScreen.reInit();
   canvasScreen.addKeyHook(27,function(){
@@ -76,6 +101,7 @@ var twoPlayers=function(){
     canvasScreen.addResizeHook(menuWrapper.printMenu);
     menuWrapper.printMenu();
   });
+  game.drawScreen();
 }
 var menuWrapper =(function(){
   var menu = [
