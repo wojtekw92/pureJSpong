@@ -49,55 +49,75 @@ var pom=1;
     }
 }*/
 //====Screen class basic methods and hooks
-var canvasScreen = function(id) {
-    this.keyHooks=[];
-    //document.onkeydown=this.checkHook;
-    this.canvasElement = document.getElementById(id);
-    this.canvasElement.width = document.documentElement.clientWidth;
-    this.canvasElement.height= document.documentElement.clientHeight;
-    this.canvasContex=this.canvasElement.getContext("2d");
-}
-canvasScreen.prototype.addKeyHook=function(code,functionName) {
-    this.keyHooks.push({key:code, func:functionName})
-};
-canvasScreen.prototype.checkHook=function(e) {
+var canvasScreen = (function() {
+  var keyHooks = [];
+  var canvasElement;
+  var canvasContex;
+
+  var init = function(selector) {
+    canvasElement = document.querySelector(selector);
+    canvasElement.width = document.documentElement.clientWidth;
+    canvasElement.height= document.documentElement.clientHeight;
+    canvasContex= canvasElement.getContext("2d");
+    document.onkeydown = checkHook;
+  }
+
+
+  var addKeyHook=function(code,functionName) {
+    keyHooks.push({key:code, func:functionName});
+  };
+
+  var checkHook = function(e) {
     e = e || window.event;
-    this.keyHooks.some(function(keyObject){
-        if(e.keyCode==keyObject.key){
-            keyObject.func();
-            return true;
-        }
+    keyHooks.some(function(keyObject) {
+      if(e.keyCode === keyObject.key){
+        keyObject.func();
+        return true;
+      }
     });
-};
-canvasScreen.prototype.cleanScreen = function() {
-    this.canvasContex.clearRect(0,0,this.canvasContex.width,this.canvasContex.height);
-};
-canvasScreen.prototype.putText=function(size, color, text,top,left) {
-    this.canvasContex.font = size+"px Orbitron";
-    this.canvasContex.fillStyle = color;
-    var textWidth = this.canvasContex.measureText(text).width;
-    if(typeof left == 'string' && left=="center") left=(this.canvasElement.width/2) - (textWidth / 2);
-    this.canvasContex.fillText(text,left,top);
-};
-var myScreen = new canvasScreen("mainCanvas");
-myScreen.putText(60,"#FFFFFF","TEST",10,10);
+  };
+
+  var cleanScreen = function() {
+    canvasElement.width = canvasElement.width;
+  };
+
+  var putText=function(size, color, text,top,left) {
+    canvasContex.font = size+"px Orbitron";
+    canvasContex.fillStyle = color;
+    var textWidth = canvasContex.measureText(text).width;
+    if(typeof left === 'string' && left==="center") left=(canvasElement.width/2) - (textWidth / 2);
+    canvasContex.fillText(text,left,top);
+  };
+
+  return {
+    init: init,
+    cleanScreen: cleanScreen,
+    putText: putText,
+    addKeyHook: addKeyHook
+  }
+})();
+
 var keyUp = function() {
-    myScreen.cleanScreen();
+    canvasScreen.cleanScreen();
     pom--;
         if(pom<1)pom=3;
         for(var i=0;i<4;i++) {
-            if(i!=pom)myScreen.putText(menu[i].font,menu[i].color,menu[i].text,menu[i].top,"center");
-            else myScreen.putText(menu[i].font,"#FFFFFF",">"+menu[i].text+"<",menu[i].top,"center");
+            if(i!=pom)canvasScreen.putText(menu[i].font,menu[i].color,menu[i].text,menu[i].top,"center");
+            else canvasScreen.putText(menu[i].font,"#FFFFFF",">"+menu[i].text+"<",menu[i].top,"center");
         }
 }
 var keyDown = function() {
-    myScreen.cleanScreen();
+    canvasScreen.cleanScreen();
     pom++;
             if(pom>3)pom=1;
         for(var i=0;i<4;i++) {
-            if(i!=pom)myScreen.putText(menu[i].font,menu[i].color,menu[i].text,menu[i].top,"center");
-            else myScreen.putText(menu[i].font,"#FFFFFF",">"+menu[i].text+"<",menu[i].top,"center");
+            if(i!=pom)canvasScreen.putText(menu[i].font,menu[i].color,menu[i].text,menu[i].top,"center");
+            else canvasScreen.putText(menu[i].font,"#FFFFFF",">"+menu[i].text+"<",menu[i].top,"center");
         }
 }
-myScreen.addKeyHook('40',keyDown);
-myScreen.addKeyHook('38',keyUp);
+
+canvasScreen.init("canvas");
+canvasScreen.addKeyHook(40,keyDown);
+canvasScreen.addKeyHook(38,keyUp);
+keyUp();
+keyDown();
